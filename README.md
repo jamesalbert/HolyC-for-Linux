@@ -24,11 +24,11 @@ turns
 
 `examples/test.hc`
 ```
-U0 test() {
+U0 test(I16 a, U8 b, F64 c) {
   Print("hello");
 };
 
-Print(3, "hello", "world");
+Print("%s %s", "hello", "world");
 F64 a = 3;
 I64 b = 2.000;
 ```
@@ -37,14 +37,14 @@ into
 
 `examples/test.c`
 ```
-void test()
+void test(short a, unsigned char b, double c)
 {
   printf("hello");
 }
 
 int main()
 {
-  printf(3, "hello", "world");
+  printf("%s %s", "hello", "world");
   double a = 3;
   long b = 2.0;
 }

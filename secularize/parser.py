@@ -119,11 +119,14 @@ class Parser(object):
         return func
 
     def parse_varname(self):
+        type_ = self.input.next()['value']
+        type_ = self.direct_trans.get(type_, type_)
         name = self.input.next()
-        print(name)
-        if name['type'] != 'var':
+        if name['_nodetype'] != 'Decl':
             self.input.croak('Expecting variable name')
-        return name['value']
+        name['type']['type']['names'].append(type_)
+        name['init'] = None
+        return name
 
     def parse_if(self):
         self.skip_kw('if')
@@ -142,13 +145,14 @@ class Parser(object):
         return ret
 
     def parse_lambda(self):
-        self.delimited('(', ')', ',', self.parse_varname)
-        return self.parse_expression()
-        return {
-            # 'type': 'lambda',
-            # 'vars': self.delimited('(', ')', ',', self.parse_varname),
-            'body': self.parse_expression()
+        vars_ = self.delimited('(', ')', ',', self.parse_varname)
+        expr = self.parse_expression()
+        expr['decl']['type']['args'] = {
+            "_nodetype": "ParamList",
+            "coord": "./examples/test.c:1",
+            "params": vars_,
         }
+        return expr
 
     def parse_bool(self):
         return {
@@ -173,7 +177,6 @@ class Parser(object):
                 self.skip_punc(')')
                 return expr
             if self.is_punc('{'):
-                print('parsing prog')
                 return self.parse_prog()
             if self.is_kw('if'):
                 return self.parse_if()
@@ -188,8 +191,6 @@ class Parser(object):
                 var['type']['type']['names'].append(
                     self.direct_trans.get(tok['value'], tok['value']))
                 tok = self.input.next()
-                # print(self.toplevel_prog[-1])
-                # exit()
                 if tok['value'] == ';':
                     var['init'] = None
                     return var
@@ -245,7 +246,7 @@ class Parser(object):
         for i, tok in enumerate(self.input.tokens[::-1]):
             if tok.get('_nodetype') == 'FuncDef':
                 name = tok['decl']['name']
-                type_ = self.input.tokens[i - 2]['value']
+                type_ = self.input.tokens[len(self.input.tokens) - i - 3]['value']
                 type_ = self.direct_trans.get(type_, type_)
                 break
         self.input.next()
