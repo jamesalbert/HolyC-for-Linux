@@ -12,6 +12,7 @@ This tool is in super-hella-mega alpha stage. If you use this, you will die. Or 
 ```
 git clone https://github.com/jamesalbert/HolyC-for-Linux.git
 cd HolyC-for-Linux
+pip install -r requirements.txt
 python setup.py install
 ln -s bin/secularize /usr/local/bin/secularize
 ```
