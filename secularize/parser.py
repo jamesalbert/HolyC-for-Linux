@@ -98,7 +98,7 @@ class Parser(object):
                 self.skip_punc(sep)
             if self.is_punc(stop):
                 break
-            a.insert(len(a), parser())
+            a.append(parser())
         self.skip_punc(stop)
         return a
 
@@ -228,14 +228,14 @@ class Parser(object):
         while not self.input.eof():
             expr = self.parse_expression()
             if expr['_nodetype'] == 'FuncDef':
-                functions.insert(len(functions), expr)
+                functions.append(expr)
             else:
-                self.toplevel_prog.insert(len(self.toplevel_prog), expr)
+                self.toplevel_prog.append(expr)
             if not self.input.eof():
                 self.skip_punc(';')
         ast = self.build_ast(self.toplevel_prog)
         for func in functions:
-            ast['ext'].append(func)
+            ast['ext'].insert(0, func)
         return ast
 
     def parse_prog(self):
