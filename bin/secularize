@@ -1,6 +1,8 @@
-from src.parser import Parser
-from src.token import TokenStream
-from src.char import InputStream
+#!/usr/bin/env python
+
+from secularize.parser import Parser
+from secularize.token import TokenStream
+from secularize.char import InputStream
 from json import dumps, loads
 from pycparser import parse_file, c_generator, c_ast
 from pycparser.plyparser import Coord
@@ -132,8 +134,9 @@ def from_json(ast_json):
 
 
 if __name__ == '__main__':
-    # ast = parse_file('./test.c', use_cpp=True)
+    # ast = parse_file('./examples/test.c', use_cpp=True)
     # print(dumps(to_dict(ast), indent=2))
+    # exit()
     if len(sys.argv) < 2:
         raise Exception('you must specify an input file (*.hc)')
     filename = sys.argv[1]
@@ -141,9 +144,10 @@ if __name__ == '__main__':
     i = InputStream(filename)
     t = TokenStream(i)
     p = Parser(t)
-    # ast_json = dumps(p.out, indent=2, sort_keys=True)
+    ast_json = dumps(p.out, indent=2, sort_keys=True)
     # print('\n\n-----------------------------------------\n\n')
-    # print(ast_json)
+    print(ast_json)
+    # exit()
     # print('\n\n-----------------------------------------\n\n')
     ast = from_dict(p.out)
     # print(ast_obj)

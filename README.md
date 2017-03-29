@@ -17,21 +17,27 @@ and it will output the transpiled C file. In this case, it will turn
 
 `examples/test.hc`
 ```
-Print("Hello");
+F64 a = 3;
+Print("%s %s", "hello", "world");
+I64 b = 2.000;
 ```
 
 to
 
 `examples/test.c`
 ```
-int main() {
-  printf("Hello");
+int main()
+{
+  double a = 3;
+  printf("%s %s", "hello", "world");
+  long b = 2.0;
 }
 ```
 
 #### What's Supported
 
-Only the above example
+- print statements
+- primitive data types
 
 #### What's Not Supported
 
