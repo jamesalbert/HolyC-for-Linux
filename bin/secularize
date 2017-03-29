@@ -144,6 +144,7 @@ if __name__ == '__main__':
     i = InputStream(filename)
     t = TokenStream(i)
     p = Parser(t)
+    print(p.out)
     ast_json = dumps(p.out, indent=2, sort_keys=True)
     # print('\n\n-----------------------------------------\n\n')
     print(ast_json)

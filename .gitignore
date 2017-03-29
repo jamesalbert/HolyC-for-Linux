@@ -2,3 +2,4 @@ __pycache__
 .pyc
 .python-version
 run.sh
+build

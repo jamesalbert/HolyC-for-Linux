@@ -22,8 +22,12 @@ turns
 
 `examples/test.hc`
 ```
+U0 test() {
+  Print("hello");
+};
+
+Print(3, "hello", "world");
 F64 a = 3;
-Print("%s %s", "hello", "world");
 I64 b = 2.000;
 ```
 
@@ -33,9 +37,14 @@ into
 ```
 int main()
 {
+  printf(3, "hello", "world");
   double a = 3;
-  printf("%s %s", "hello", "world");
   long b = 2.0;
+}
+
+int test()
+{
+  printf("hello");
 }
 ```
 
@@ -43,6 +52,7 @@ int main()
 
 - print statements
 - primitive data types
+- basic functions
 
 #### What's Not Supported
 

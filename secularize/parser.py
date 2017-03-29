@@ -36,6 +36,7 @@ class Parser(object):
             'I64': 'long',
             'F64': 'double'
         }
+        self.toplevel_prog = list()
         self.out = self.parse_toplevel()
 
     def _is(self, _in, _type):
@@ -103,7 +104,6 @@ class Parser(object):
 
     def parse_call(self, func):
         coord = f'{self.input.input.filename}:{self.input.input.line}'
-        print(func['name'])
         name = func['name']['name']
         func['name']['name'] = self.direct_trans.get(name, name)
         func['args']['exprs'] = [
@@ -116,12 +116,11 @@ class Parser(object):
             }
             for arg in self.delimited('(', ')', ',', self.parse_expression)
         ]
-        print(func)
-        exit()
         return func
 
     def parse_varname(self):
         name = self.input.next()
+        print(name)
         if name['type'] != 'var':
             self.input.croak('Expecting variable name')
         return name['value']
@@ -143,9 +142,11 @@ class Parser(object):
         return ret
 
     def parse_lambda(self):
+        self.delimited('(', ')', ',', self.parse_varname)
+        return self.parse_expression()
         return {
-            'type': 'lambda',
-            'vars': self.delimited('(', ')', ',', self.parse_varname),
+            # 'type': 'lambda',
+            # 'vars': self.delimited('(', ')', ',', self.parse_varname),
             'body': self.parse_expression()
         }
 
@@ -157,17 +158,13 @@ class Parser(object):
 
     def maybe_call(self, expr):
         expr = expr()
-        # print(expr)
-        # print(self.input.peek())
-        # exit()
-        if self.input.peek().get('type') == 'str':
+        if self.input.peek().get('type') in ['str', 'num']:
             return self.parse_call(expr)
         else:
             return expr
 
     def parse_atom(self):
         def anon():
-            # print(self.input.peek())
             if self.input.peek().get('_nodetype') == 'FuncCall':
                 return self.input.next()
             if self.is_punc('('):
@@ -176,6 +173,7 @@ class Parser(object):
                 self.skip_punc(')')
                 return expr
             if self.is_punc('{'):
+                print('parsing prog')
                 return self.parse_prog()
             if self.is_kw('if'):
                 return self.parse_if()
@@ -184,9 +182,14 @@ class Parser(object):
             tok = self.input.next()
             if tok['type'] == 'datatype':
                 var = self.input.next()
+                if var['_nodetype'] == 'FuncDef':
+                    self.input.next()
+                    return self.parse_lambda()
                 var['type']['type']['names'].append(
                     self.direct_trans.get(tok['value'], tok['value']))
                 tok = self.input.next()
+                # print(self.toplevel_prog[-1])
+                # exit()
                 if tok['value'] == ';':
                     var['init'] = None
                     return var
@@ -198,7 +201,6 @@ class Parser(object):
                 return var
             if tok['type'] == 'var' or tok['type'] == 'num' or\
                tok['type'] == 'str':
-                print(tok)
                 return tok
             if tok.get('_nodetype') == 'Decl':
                 return {
@@ -210,74 +212,42 @@ class Parser(object):
                     "name": tok['name'],
                     "coord": tok['coord']
                 }
-            print(tok)
-            exit()
             self.unexpected()
         return self.maybe_call(anon)
 
     def build_ast(self, prog):
-        coord = f'{self.input.input.filename}:{self.input.input.line}'
         return {
             '_nodetype': 'FileAST',
             'coord': None,
-            'ext': [
-                {
-                    "_nodetype": "FuncDef",
-                    "coord": coord,
-                    "decl": {
-                        "_nodetype": "Decl",
-                        "name": "main",
-                        "quals": [],
-                        "storage": [],
-                        "funcspec": [],
-                        "coord": coord,
-                        "type": {
-                            "_nodetype": "FuncDecl",
-                            "coord": coord,
-                            "type": {
-                                "_nodetype": "TypeDecl",
-                                "declname": "main",
-                                "quals": [],
-                                "coord": coord,
-                                "type": {
-                                    "_nodetype": "IdentifierType",
-                                    "names": [
-                                        "int"
-                                    ],
-                                    "coord": coord
-                                }
-                            },
-                            "args": None
-                        },
-                        "bitsize": None,
-                        "init": None
-                    },
-                    "body": {
-                        "_nodetype": "Compound",
-                        "coord": coord,
-                        "block_items": prog
-                    },
-                    "param_decls": None
-                }
-            ]
+            'ext': [self.input.read_function('main', prog)]
         }
 
     def parse_toplevel(self):
-        prog = list()
+        # prog = list()
+        functions = list()
         while not self.input.eof():
-            prog.insert(len(prog), self.parse_expression())
+            expr = self.parse_expression()
+            if expr['_nodetype'] == 'FuncDef':
+                functions.insert(len(functions), expr)
+            else:
+                self.toplevel_prog.insert(len(self.toplevel_prog), expr)
             if not self.input.eof():
                 self.skip_punc(';')
-        return self.build_ast(prog)
+        ast = self.build_ast(self.toplevel_prog)
+        for func in functions:
+            ast['ext'].append(func)
+        return ast
 
     def parse_prog(self):
         coord = f'{self.input.input.filename}:{self.input.input.line}'
+        name = str()
+        for tok in self.input.tokens[::-1]:
+            if tok.get('_nodetype') == 'FuncDef':
+                name = tok['decl']['name']
+                break
+        self.input.next()
         prog = self.delimited('{', '}', ';', self.parse_expression)
-        if prog.length == 0:
-            return FALSE
-        if prog.length == 1:
-            return prog[0]
-        return self.build_ast(prog)
+        return self.input.read_function(name, prog)
 
     def parse_expression(self):
         return self.maybe_call(lambda: self.maybe_binary(self.parse_atom(), 0))

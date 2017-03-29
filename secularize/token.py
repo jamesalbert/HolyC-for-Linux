@@ -5,6 +5,7 @@ class TokenStream(object):
         self.keywords = 'if then else true false'.split(' ')
         self.datatypes = ['U0', 'U8', 'U16', 'U32', 'U64',
                           'I8', 'I16', 'I32', 'I64', 'F64']
+        self.tokens = list()
 
     def croak(self, message):
         return self.input.croak(message)
@@ -46,6 +47,16 @@ class TokenStream(object):
             string += self.input.next()
         return string
 
+    def read_while_prev(self, predicate):
+        string = str()
+        line = self.input.line
+        col = self.input.col
+        while not self.input.bof() and predicate(self.input.peek_prev()):
+            string += self.input.prev()
+        self.input.line = line
+        self.input.col = col
+        return string[::-1]
+
     def read_number(self):
         has_dot = False
         def anon(ch, has_dot):
@@ -60,10 +71,51 @@ class TokenStream(object):
             number = int(number)
         except ValueError:
             number = float(number)
-        return {
+        self.tokens.append({
             'type': 'num',
             'value': number
-        }
+        })
+        return self.tokens[-1]
+
+    def read_function(self, name, prog):
+        coord = f'{self.input.filename}:{self.input.line}'
+        self.tokens.append({
+            "_nodetype": "FuncDef",
+            "coord": coord,
+            "decl": {
+                "_nodetype": "Decl",
+                "name": name,
+                "quals": [],
+                "storage": [],
+                "funcspec": [],
+                "coord": coord,
+                "type": {
+                    "_nodetype": "FuncDecl",
+                    "coord": coord,
+                    "type": {
+                        "_nodetype": "TypeDecl",
+                        "declname": name,
+                        "quals": [],
+                        "coord": coord,
+                        "type": {
+                            "_nodetype": "IdentifierType",
+                            "names": ["int"] if name == 'main' else ["int"],
+                            "coord": coord
+                        }
+                    },
+                    "args": None
+                },
+                "bitsize": None,
+                "init": None
+            },
+            "body": {
+                "_nodetype": "Compound",
+                "coord": coord,
+                "block_items": prog
+            },
+            "param_decls": None
+        })
+        return self.tokens[-1]
 
     def read_ident(self):
         coord = f'{self.input.filename}:{self.input.line}'
@@ -74,6 +126,9 @@ class TokenStream(object):
         elif self.is_datatype(id_):
             type_ = 'datatype'
         else:
+            if self.tokens and self.tokens[-1].get('type') == 'datatype' and\
+               self.peek()['value'] == '(':
+                return self.read_function(id_, list())
             if self.peek()['value'] == '(':
                 return {
                     "_nodetype": "FuncCall",
@@ -122,10 +177,11 @@ class TokenStream(object):
                 },
                 "bitsize": None
             }
-        return {
+        self.tokens.append({
             'type': type_,
             'value': id_
-        }
+        })
+        return self.tokens[-1]
 
     def read_escaped(self, end):
         escaped = False
@@ -145,10 +201,11 @@ class TokenStream(object):
         return string
 
     def read_string(self):
-        return {
+        self.tokens.append({
             'type': 'str',
             'value': self.read_escaped('"')
-        }
+        })
+        return self.tokens[-1]
 
     def skip_comment(self):
         self.read_while(lambda ch: ch != "\n")
@@ -159,7 +216,7 @@ class TokenStream(object):
         if self.input.eof():
             return None
         ch = self.input.peek()
-        if ch == "#":
+        if ch == "//":
             self.skip_comment()
             return self.read_next()
         if ch == '"':
@@ -169,15 +226,45 @@ class TokenStream(object):
         if self.is_id_start(ch):
             return self.read_ident()
         if self.is_punc(ch):
-            return {
+            self.tokens.append({
                 'type': 'punc',
                 'value': self.input.next()
-            }
+            })
+            return self.tokens[-1]
         if self.is_op_char(ch):
-            return {
+            self.tokens.append({
                 'type': 'op',
                 'value': self.read_while(self.is_op_char)
-            }
+            })
+            return self.tokens[-1]
+        self.input.croak(f'Can\'t handle character: {ch}')
+
+    def read_prev(self):
+        self.read_while_prev(self.is_whitespace)
+        if self.input.bof():
+            return None
+        ch = self.input.peek()
+        if ch == "//":
+            self.skip_comment()
+            return self.read_next()
+        if ch == '"':
+            return self.read_string()
+        if self.is_digit(ch):
+            return self.read_number()
+        if self.is_id_start(ch):
+            return self.read_ident()
+        if self.is_punc(ch):
+            self.tokens.append({
+                'type': 'punc',
+                'value': self.input.next()
+            })
+            return self.tokens
+        if self.is_op_char(ch):
+            self.tokens.append({
+                'type': 'op',
+                'value': self.read_while(self.is_op_char)
+            })
+            return self.tokens[-1]
         self.input.croak(f'Can\'t handle character: {ch}')
 
     def peek(self):
@@ -190,6 +277,9 @@ class TokenStream(object):
         tok = self.current
         self.current = None
         return tok or self.read_next()
+
+    def prev(self):
+        return self.read_prev()
 
     def eof(self):
         return self.peek() is None
