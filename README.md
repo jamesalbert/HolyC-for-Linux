@@ -5,15 +5,20 @@ run HolyC on Linux secularly
 
 This tool is in super-hella-mega alpha stage. If you use this, you will die. Or worse, your current operating system will be replaced with TempleOS.
 
-#### How To Use
-
-Right now, I'm just using `test.py` as a bootstrap for running the program. Feed it a HolyC file like so:
+#### Install
 
 ```
-python test.py examples/test.hc
+git clone https://github.com/jamesalbert/HolyC-for-Linux.git
+cd HolyC-for-Linux
+python setup.py install
+ln -s bin/secularize /usr/local/bin/secularize
 ```
 
-and it will output the transpiled C file. In this case, it will turn
+#### run
+
+`secularize examples/test.hc`
+
+turns
 
 `examples/test.hc`
 ```
@@ -22,7 +27,7 @@ Print("%s %s", "hello", "world");
 I64 b = 2.000;
 ```
 
-to
+into
 
 `examples/test.c`
 ```
