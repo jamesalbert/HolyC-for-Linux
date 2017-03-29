@@ -42,7 +42,7 @@ int main()
   long b = 2.0;
 }
 
-int test()
+void test()
 {
   printf("hello");
 }

@@ -241,13 +241,16 @@ class Parser(object):
     def parse_prog(self):
         coord = f'{self.input.input.filename}:{self.input.input.line}'
         name = str()
-        for tok in self.input.tokens[::-1]:
+        type_ = str()
+        for i, tok in enumerate(self.input.tokens[::-1]):
             if tok.get('_nodetype') == 'FuncDef':
                 name = tok['decl']['name']
+                type_ = self.input.tokens[i - 2]['value']
+                type_ = self.direct_trans.get(type_, type_)
                 break
         self.input.next()
         prog = self.delimited('{', '}', ';', self.parse_expression)
-        return self.input.read_function(name, prog)
+        return self.input.read_function(name, prog, type_=[type_])
 
     def parse_expression(self):
         return self.maybe_call(lambda: self.maybe_binary(self.parse_atom(), 0))

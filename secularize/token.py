@@ -77,7 +77,7 @@ class TokenStream(object):
         })
         return self.tokens[-1]
 
-    def read_function(self, name, prog):
+    def read_function(self, name, prog, type_=['int']):
         coord = f'{self.input.filename}:{self.input.line}'
         self.tokens.append({
             "_nodetype": "FuncDef",
@@ -99,7 +99,7 @@ class TokenStream(object):
                         "coord": coord,
                         "type": {
                             "_nodetype": "IdentifierType",
-                            "names": ["int"] if name == 'main' else ["int"],
+                            "names": type_,
                             "coord": coord
                         }
                     },
