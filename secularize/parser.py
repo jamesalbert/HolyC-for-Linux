@@ -23,19 +23,6 @@ class Parser(object):
             '/': 20,
             '%': 20
         }
-        self.direct_trans = {
-            'Print': 'printf',
-            'U0': 'void',
-            'U8': 'unsigned char',
-            'U16': 'unsigned short',
-            'U32': 'unsigned int',
-            'U64': 'unsigned long',
-            'I8': 'char',
-            'I16': 'short',
-            'I32': 'int',
-            'I64': 'long',
-            'F64': 'double'
-        }
         self.toplevel_prog = list()
         self.out = self.parse_toplevel()
 
@@ -184,15 +171,10 @@ class Parser(object):
             tok = self.input.next()
             if tok['type'] == 'datatype':
                 var = self.input.next()
-                print(self.input.tokens)
-                # exit()
-                print(tok, var)
-                print(var)
                 if var['_nodetype'] == 'FuncDef':
                     self.input.next()
                     return self.parse_lambda()
-                var['type']['type']['names'].append(
-                    self.direct_trans.get(tok['value'], tok['value']))
+                var['type']['type']['names'].append(tok['value'])
                 tok = self.input.next()
                 if tok['value'] == ';':
                     var['init'] = None
@@ -250,7 +232,6 @@ class Parser(object):
             if tok.get('_nodetype') == 'FuncDef':
                 name = tok['decl']['name']
                 type_ = self.input.tokens[len(self.input.tokens) - i - 3]['value']
-                type_ = self.direct_trans.get(type_, type_)
                 break
         self.input.next()
         prog = self.delimited('{', '}', ';', self.parse_expression)
