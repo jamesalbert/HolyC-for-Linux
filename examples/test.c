@@ -3,10 +3,15 @@ void test(short a, unsigned char b, double c)
   printf("hello");
 }
 
+double pest(char d)
+{
+  printf("nothing");
+}
+
 int main()
 {
+  double* s = 3;
   printf("%s %s", "hello", "world");
-  double a = 3;
   long b = 2.0;
 }
 

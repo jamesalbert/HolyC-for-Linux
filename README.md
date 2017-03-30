@@ -5,7 +5,7 @@ run HolyC on Linux secularly
 
 #### Disclaimer
 
-This tool is in super-hella-mega alpha stage. If you use this, you will die. Or worse, your current operating system will be replaced with TempleOS.
+This tool is in super-hella-mega alpha stage. If you use this, you will die. Or worse, your current operating system will be replaced with TempleOS. I've only tested this on `3.7-dev`.
 
 #### Install
 
@@ -24,13 +24,17 @@ turns
 
 `examples/test.hc`
 ```
-Print("%s %s", "hello", "world");
+F64 *s = 3;
 
 U0 test(I16 a, U8 b, F64 c) {
   Print("hello");
-};
+}
 
-F64 a = 3;
+F64 pest(I8 d) {
+  Print("nothing");
+}
+
+Print("%s %s", "hello", "world");
 I64 b = 2.000;
 ```
 
@@ -43,10 +47,15 @@ void test(short a, unsigned char b, double c)
   printf("hello");
 }
 
+double pest(char d)
+{
+  printf("nothing");
+}
+
 int main()
 {
+  double* s = 3;
   printf("%s %s", "hello", "world");
-  double a = 3;
   long b = 2.0;
 }
 ```

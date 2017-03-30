@@ -6,6 +6,19 @@ class TokenStream(object):
         self.datatypes = ['U0', 'U8', 'U16', 'U32', 'U64',
                           'I8', 'I16', 'I32', 'I64', 'F64']
         self.tokens = list()
+        self.direct_trans = {
+            'Print': 'printf',
+            'U0': 'void',
+            'U8': 'unsigned char',
+            'U16': 'unsigned short',
+            'U32': 'unsigned int',
+            'U64': 'unsigned long',
+            'I8': 'char',
+            'I16': 'short',
+            'I32': 'int',
+            'I64': 'long',
+            'F64': 'double'
+        }
 
     def croak(self, message):
         return self.input.croak(message)
@@ -125,17 +138,24 @@ class TokenStream(object):
             type_ = 'kw'
         elif self.is_datatype(id_):
             type_ = 'datatype'
+            self.direct_trans[f'{id_}*'] = f'{self.direct_trans[id_]}*'
+            maybe_pointer = self.read_while(lambda ch: ch in [' ', '*'])\
+                .replace(' ', str())
+            if maybe_pointer:
+                id_ += maybe_pointer
         else:
+            # function definition
             if self.tokens and self.tokens[-1].get('type') == 'datatype' and\
                self.peek()['value'] == '(':
                 return self.read_function(id_, list())
+            # function call
             if self.peek()['value'] == '(':
-                return {
+                self.tokens.append({
                     "_nodetype": "FuncCall",
                     "coord": coord,
                     "name": {
                         "_nodetype": "ID",
-                        "name": id_,
+                        "name": self.direct_trans.get(id_, id_),
                         "coord": coord
                     },
                     "args": {
@@ -150,8 +170,10 @@ class TokenStream(object):
                             }
                         ]
                     }
-                }
-            return {
+                })
+                return self.tokens[-1]
+            # function/variable declaration
+            self.tokens.append({
                 "_nodetype": "Decl",
                 "name": id_,
                 "quals": [],
@@ -176,10 +198,11 @@ class TokenStream(object):
                     "coord": coord
                 },
                 "bitsize": None
-            }
+            })
+            return self.tokens[-1]
         self.tokens.append({
             'type': type_,
-            'value': id_
+            'value': self.direct_trans.get(id_, id_)
         })
         return self.tokens[-1]
 

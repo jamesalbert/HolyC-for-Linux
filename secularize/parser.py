@@ -105,7 +105,7 @@ class Parser(object):
     def parse_call(self, func):
         coord = f'{self.input.input.filename}:{self.input.input.line}'
         name = func['name']['name']
-        func['name']['name'] = self.direct_trans.get(name, name)
+        func['name']['name'] = name
         func['args']['exprs'] = [
             {
                 '_nodetype': 'Constant',  # change
@@ -120,7 +120,6 @@ class Parser(object):
 
     def parse_varname(self):
         type_ = self.input.next()['value']
-        type_ = self.direct_trans.get(type_, type_)
         name = self.input.next()
         if name['_nodetype'] != 'Decl':
             self.input.croak('Expecting variable name')
@@ -185,6 +184,10 @@ class Parser(object):
             tok = self.input.next()
             if tok['type'] == 'datatype':
                 var = self.input.next()
+                print(self.input.tokens)
+                # exit()
+                print(tok, var)
+                print(var)
                 if var['_nodetype'] == 'FuncDef':
                     self.input.next()
                     return self.parse_lambda()
@@ -197,7 +200,7 @@ class Parser(object):
                 if tok['value'] != '=':
                     self.input.croak('Expected = for variable declaration')
                 tok = self.input.next()
-                var['init']['type'] = str(type(tok['value']))
+                var['init']['type'] = type(tok['value']).__name__
                 var['init']['value'] = str(tok['value'])
                 return var
             if tok['type'] == 'var' or tok['type'] == 'num' or\
@@ -232,10 +235,10 @@ class Parser(object):
                 functions.append(expr)
             else:
                 self.toplevel_prog.append(expr)
-            if not self.input.eof():
-                self.skip_punc(';')
+                if not self.input.eof():
+                    self.skip_punc(';')
         ast = self.build_ast(self.toplevel_prog)
-        for func in functions:
+        for func in functions[::-1]:
             ast['ext'].insert(0, func)
         return ast
 

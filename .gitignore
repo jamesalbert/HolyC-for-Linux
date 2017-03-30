@@ -3,3 +3,5 @@ __pycache__
 .python-version
 run.sh
 build
+secularize.egg-info
+dist
