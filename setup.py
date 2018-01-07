@@ -14,7 +14,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # http://packaging.python.org/en/latest/tutorial.html#version
-    version='0.0.1-0',
+    version='0.0.1-4',
 
     description='run HolyC source on linux',
     long_description=long_description,  #this is the
@@ -31,9 +31,11 @@ setup(
 
     entry_points={
        'console_scripts': [
-           'secularize = bin.secularize:main',
+           'secularize = secularize.__init__:main',
        ],
     },
+
+    install_requires=['pycparser'],
 
     # See https://PyPI.python.org/PyPI?%3Aaction=list_classifiers
     classifiers=[
@@ -58,6 +60,6 @@ setup(
     # What does your project relate to?
     keywords='holyc linux terry lord temple mlg',
 
-    packages=["secularize", "bin", "config"],
+    packages=["secularize"],
 
 )

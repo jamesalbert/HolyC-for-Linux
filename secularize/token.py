@@ -1,6 +1,4 @@
 from json import load
-from dotmap import DotMap
-
 from .utils import populate_ast
 
 
