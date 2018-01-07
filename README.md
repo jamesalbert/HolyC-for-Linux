@@ -8,13 +8,13 @@ run HolyC on Linux secularly
 
 This tool is in super-hella-mega alpha stage. If you use this, you will die. Or worse, your current operating system will be replaced with TempleOS. I've only tested this on `3.7-dev`.
 
-#### Install
+## Install
 
 ```
 pip install secularize
 ```
 
-#### Translate
+## Translate
 
 The primary use is to translate holyc to c. Do this with:
 `secularize examples/test.hc`
@@ -172,12 +172,12 @@ $ secularize dump-ast examples/math.c
 
 ```
 
-#### What's Supported
+## What's Supported
 
 - print statements
 - primitive data types
 - basic functions
 
-#### What's Not Supported
+## What's Not Supported
 
 Everything else. Deal with it.
