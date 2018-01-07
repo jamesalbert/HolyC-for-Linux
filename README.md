@@ -2,6 +2,7 @@
 run HolyC on Linux secularly
 
 [![Build Status](http://ec2-54-162-194-49.compute-1.amazonaws.com/job/holyc-for-linux/job/master/badge/icon)](http://ec2-54-162-194-49.compute-1.amazonaws.com/job/holyc-for-linux/job/master/)
+[![PyPI version](https://badge.fury.io/py/secularize.svg)](https://badge.fury.io/py/secularize)
 
 #### Disclaimer
 
