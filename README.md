@@ -1,6 +1,8 @@
 # HolyC-for-Linux
 run HolyC on Linux secularly
 
+[![Build Status](http://ec2-54-162-194-49.compute-1.amazonaws.com/job/holyc-for-linux/job/master/badge/icon)](http://ec2-54-162-194-49.compute-1.amazonaws.com/job/holyc-for-linux/job/master/) 
+
 ###### version 0.0.1
 
 #### Disclaimer
