@@ -2,6 +2,7 @@ __pycache__
 venv
 .pyc
 .python-version
+.eggs
 run.sh
 build
 secularize.egg-info
