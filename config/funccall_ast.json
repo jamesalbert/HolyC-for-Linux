@@ -1,0 +1,21 @@
+{
+    "_nodetype": "FuncCall",
+    "coord": null,
+    "name": {
+        "_nodetype": "ID",
+        "name": null,
+        "coord": null
+    },
+    "args": {
+        "_nodetype": "ExprList",
+        "coord": null,
+        "exprs": [
+            {
+                "_nodetype": "Constant",
+                "type": "string",
+                "value": "\"\"",
+                "coord": null
+            }
+        ]
+    }
+}

@@ -1,0 +1,26 @@
+{
+    "_nodetype": "Decl",
+    "name": null,
+    "quals": [],
+    "storage": [],
+    "funcspec": [],
+    "coord": null,
+    "type": {
+        "_nodetype": "TypeDecl",
+        "declname": null,
+        "quals": [],
+        "coord": null,
+        "type": {
+            "_nodetype": "IdentifierType",
+            "names": null,
+            "coord": null
+        }
+    },
+    "init": {
+        "_nodetype": "Constant",
+        "type": "int",
+        "value": null,
+        "coord": null
+    },
+    "bitsize": null
+}

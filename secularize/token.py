@@ -1,3 +1,9 @@
+from json import load
+from dotmap import DotMap
+
+from .utils import populate_ast
+
+
 class TokenStream(object):
     def __init__(self, input_):
         self.input = input_
@@ -90,45 +96,22 @@ class TokenStream(object):
         })
         return self.tokens[-1]
 
+
     def read_function(self, name, prog, type_=['int']):
         coord = f'{self.input.filename}:{self.input.line}'
-        self.tokens.append({
-            "_nodetype": "FuncDef",
-            "coord": coord,
-            "decl": {
-                "_nodetype": "Decl",
-                "name": name,
-                "quals": [],
-                "storage": [],
-                "funcspec": [],
-                "coord": coord,
-                "type": {
-                    "_nodetype": "FuncDecl",
-                    "coord": coord,
-                    "type": {
-                        "_nodetype": "TypeDecl",
-                        "declname": name,
-                        "quals": [],
-                        "coord": coord,
-                        "type": {
-                            "_nodetype": "IdentifierType",
-                            "names": type_,
-                            "coord": coord
-                        }
-                    },
-                    "args": None
-                },
-                "bitsize": None,
-                "init": None
-            },
-            "body": {
-                "_nodetype": "Compound",
-                "coord": coord,
-                "block_items": prog
-            },
-            "param_decls": None
+        return populate_ast(self, 'funcdef', **{
+            'coord': coord,
+            'body.coord': coord,
+            'body.block_items': prog,
+            'decl.name': name,
+            'decl.coord': coord,
+            'decl.type.coord': coord,
+            'decl.type.type.coord': coord,
+            'decl.type.type.declname': name,
+            'decl.type.type.type.names': type_,
+            'decl.type.type.type.coord': coord
         })
-        return self.tokens[-1]
+
 
     def read_ident(self):
         coord = f'{self.input.filename}:{self.input.line}'
@@ -150,56 +133,23 @@ class TokenStream(object):
                 return self.read_function(id_, list())
             # function call
             if self.peek()['value'] == '(':
-                self.tokens.append({
-                    "_nodetype": "FuncCall",
-                    "coord": coord,
-                    "name": {
-                        "_nodetype": "ID",
-                        "name": self.direct_trans.get(id_, id_),
-                        "coord": coord
-                    },
-                    "args": {
-                        "_nodetype": "ExprList",
-                        "coord": coord,
-                        "exprs": [
-                            {
-                                "_nodetype": "Constant",
-                                "type": "string",
-                                "value": "\"\"",
-                                "coord": coord
-                            }
-                        ]
-                    }
+                return populate_ast(self, 'funccall', **{
+                    'coord': coord,
+                    'name.name': self.direct_trans.get(id_, id_),
+                    'name.coord': coord,
+                    'args.coord': coord,
+                    'args.exprs.coord': coord
                 })
-                return self.tokens[-1]
             # function/variable declaration
-            self.tokens.append({
-                "_nodetype": "Decl",
-                "name": id_,
-                "quals": [],
-                "storage": [],
-                "funcspec": [],
-                "coord": coord,
-                "type": {
-                    "_nodetype": "TypeDecl",
-                    "declname": id_,
-                    "quals": [],
-                    "coord": coord,
-                    "type": {
-                        "_nodetype": "IdentifierType",
-                        "names": list(),  # type will be inserted later
-                        "coord": coord
-                    }
-                },
-                "init": {
-                    "_nodetype": "Constant",
-                    "type": "int",
-                    "value": None,
-                    "coord": coord
-                },
-                "bitsize": None
+            return populate_ast(self, 'decl', **{
+                'name': id_,
+                'coord': coord,
+                'type.declname': id_,
+                'type.coord': coord,
+                'type.type.names': list(),
+                'type.type.coord': coord,
+                'init.coord': coord
             })
-            return self.tokens[-1]
         self.tokens.append({
             'type': type_,
             'value': self.direct_trans.get(id_, id_)

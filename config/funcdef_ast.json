@@ -1,0 +1,26 @@
+{
+    "_nodetype": "FuncDef",
+    "decl": {
+        "_nodetype": "Decl",
+        "quals": [],
+        "storage": [],
+        "funcspec": [],
+        "type": {
+            "_nodetype": "FuncDecl",
+            "type": {
+                "_nodetype": "TypeDecl",
+                "quals": [],
+                "type": {
+                    "_nodetype": "IdentifierType"
+                }
+            },
+            "args": null
+        },
+        "bitsize": null,
+        "init": null
+    },
+    "body": {
+        "_nodetype": "Compound"
+    },
+    "param_decls": null
+}
