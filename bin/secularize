@@ -130,7 +130,7 @@ def from_json(ast_json):
     return from_dict(json.loads(ast_json))
 
 
-if __name__ == '__main__':
+def main():
     if len(sys.argv) < 2:
         raise Exception('you must specify an input file (*.hc)')
     filename = sys.argv[1]
