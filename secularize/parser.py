@@ -37,6 +37,9 @@ class Parser(object):
         else:
             self.input.croak(f'Expecting punctuation: "{_in}"')
 
+    def get_coord(self):
+        return f'{self.input.input.filename}:{self.input.input.line}'
+
     def is_punc(self, ch):
         return self._is(ch, 'punc')
 
@@ -75,7 +78,6 @@ class Parser(object):
     def delimited(self, start, stop, sep, parser):
         a = list()
         first = True
-        # self.skip_punc(start)
         while not self.input.eof():
             if self.is_punc(stop):
                 break
@@ -90,7 +92,7 @@ class Parser(object):
         return a
 
     def parse_call(self, func):
-        coord = f'{self.input.input.filename}:{self.input.input.line}'
+        coord = self.get_coord()
         name = func['name']['name']
         func['name']['name'] = name
         func['args']['exprs'] = [

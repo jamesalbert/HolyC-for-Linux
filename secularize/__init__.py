@@ -1,9 +1,24 @@
+"""secularize
+
+Usage:
+  secularize translate (<file.hc>)
+  secularize dump-ast (<file.c>)
+  secularize (-h | --help)
+  secularize --version
+
+Options:
+  -h --help     Show this screen.
+  --version     Show version.
+
+"""
+
 from .char import InputStream
 from .parser import Parser
 from .token import TokenStream
 
+from docopt import docopt
 from json import dumps, loads
-from pycparser import parse_file, c_generator, c_ast
+from pycparser import parse_file, c_parser, c_generator, c_ast
 from pycparser.plyparser import Coord
 import re
 import sys
@@ -131,10 +146,7 @@ def from_json(ast_json):
     return from_dict(json.loads(ast_json))
 
 
-def main():
-    if len(sys.argv) < 2:
-        raise Exception('you must specify an input file (*.hc)')
-    filename = sys.argv[1]
+def translate(filename):
     outfile = filename.replace('.hc', '.c')
     i = InputStream(filename)
     t = TokenStream(i)
@@ -144,3 +156,19 @@ def main():
     generator = c_generator.CGenerator()
     with open(outfile, 'w+') as out:
         out.write(generator.visit(ast))
+
+
+def dump_ast(filename):
+    with open(filename) as c_file:
+        c_text = c_file.read()
+    parser = c_parser.CParser()
+    ast = parser.parse(c_text, filename=filename)
+    print(dumps(to_dict(ast), sort_keys=False, indent=2))
+
+
+def main():
+    args = docopt(__doc__, version='secularize')
+    if args['dump-ast']:
+        dump_ast(args['<file.c>'])
+    elif args['translate']:
+        translate(args['<file.hc>'])

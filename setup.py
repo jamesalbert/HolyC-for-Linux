@@ -35,7 +35,7 @@ setup(
        ],
     },
 
-    install_requires=['pycparser'],
+    install_requires=['pycparser', 'docopt'],
 
     # See https://PyPI.python.org/PyPI?%3Aaction=list_classifiers
     classifiers=[
