@@ -1,5 +1,5 @@
 int main()
 {
-  long a = 3;
-  long b = 2;
+  int a = 3;
+  printf("%d\n", a);
 }

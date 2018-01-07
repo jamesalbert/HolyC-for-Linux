@@ -20,7 +20,7 @@ The primary use is to translate holyc to c. Do this with:
 `secularize examples/test.hc`
 
 this turns `examples/test.hc`
-```
+```c
 F64 *s = 3;
 
 U0 test(I16 a, U8 b, F64 c) {
@@ -36,7 +36,7 @@ I64 b = 2.000;
 ```
 
 into `examples/test.c`
-```
+```c
 void test(short a, unsigned char b, double c)
 {
   printf("hello");
