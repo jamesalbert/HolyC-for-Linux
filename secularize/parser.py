@@ -160,14 +160,14 @@ class Parser(object):
     def parse_atom(self):
         def anon():
             if self.input.peek().get('_nodetype') == 'FuncCall':
-                print("found FuncCall")
+                # print("found FuncCall")
                 return self.input.next()
             if self.is_punc('('):
-                print("found (")
+                # print("found (")
                 self.input.next()
-                print("parsing expression after (")
+                # print("parsing expression after (")
                 expr = self.parse_expression()
-                print("skipping )")
+                # print("skipping )")
                 self.skip_punc(')')
                 return expr
             if self.is_punc('{'):
@@ -177,11 +177,11 @@ class Parser(object):
             if self.is_kw('true') or self.is_kw('false'):
                 return self.parse_bool()
             tok = self.input.next()
-            print(f"got next token: {tok}")
+            # print(f"got next token: {tok}")
             # print(f'tok: {dumps(tok, indent=2)}')
             # DATATYPE
             if tok.get('type') == 'datatype':
-                print("found datatype")
+                # print("found datatype")
                 var = self.input.next()
                 if var['_nodetype'] == 'FuncDef':
                     self.input.next()
@@ -200,7 +200,7 @@ class Parser(object):
             # CONSTANT
             if tok.get('type') in ['string', 'int'] or \
                tok.get('_nodetype') in ['ID']:
-                print("found string or int")
+                # print("found string or int")
                 return tok
             self.unexpected()
         return self.maybe_call(anon)

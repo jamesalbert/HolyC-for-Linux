@@ -58,6 +58,12 @@ class TokenStream(object):
     def is_whitespace(self, ch):
         return ch in ' _\t_\n'.split('_')
 
+    def is_being_declared(self):
+        return self.tokens and self.tokens[-1].get('type') != 'datatype'
+
+    def is_not_builtin(self, id_):
+        return id_ not in self.direct_trans
+
     def read_while(self, predicate):
         string = str()
         while not self.input.eof() and predicate(self.input.peek()):
@@ -115,7 +121,7 @@ class TokenStream(object):
         coord = f'{self.input.filename}:{self.input.line}'
         id_ = self.read_while(self.is_id)
         type_ = str()
-        print(f'id: {id_}')
+        # print(f'id: {id_}')
         if self.is_keyword(id_):
             type_ = 'kw'
         elif self.is_datatype(id_):
@@ -125,8 +131,8 @@ class TokenStream(object):
                 .replace(' ', str())
             if maybe_pointer:
                 id_ += maybe_pointer
-        elif self.tokens and self.tokens[-1].get('type') != 'datatype' and id_ not in self.direct_trans:
-            print(f"creating var out of {id_}")
+        elif self.is_being_declared() and self.is_not_builtin(id_):
+            # print(f"creating var out of {id_}")
             return populate_ast(self, 'id', **{
                 'name': id_,
                 'coord': coord
@@ -188,7 +194,7 @@ class TokenStream(object):
           "value": self.read_escaped('"'),
           "coord": "examples/math.c:3:16"
         })
-        print(f'found string: {self.tokens[-1]}')
+        # print(f'found string: {self.tokens[-1]}')
         # self.tokens.append({
         #     'type': 'str',
         #     'value': self.read_escaped('"')

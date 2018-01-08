@@ -151,7 +151,7 @@ def translate(filename):
     t = TokenStream(i)
     p = Parser(t)
     ast_json = dumps(p.out, indent=2, sort_keys=True)
-    print(ast_json)
+    # print(ast_json)
     ast = from_dict(p.out)
     generator = c_generator.CGenerator()
     with open(outfile, 'w+') as out:
