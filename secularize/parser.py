@@ -1,3 +1,6 @@
+from json import dumps
+
+
 FALSE = {
     'type': 'bool',
     'value': False
@@ -79,6 +82,7 @@ class Parser(object):
         a = list()
         first = True
         while not self.input.eof():
+            # print(f'delimited list: {a}')
             if self.is_punc(stop):
                 break
             if first:
@@ -93,18 +97,13 @@ class Parser(object):
 
     def parse_call(self, func):
         coord = self.get_coord()
+        # print(f'parsing call: {func}')
         name = func['name']['name']
         func['name']['name'] = name
         func['args']['exprs'] = [
-            {
-                '_nodetype': 'Constant',  # change
-                'type': arg['type'],
-                'value': f'"{arg["value"]}"'\
-                if hasattr(arg['value'], 'isalpha') else f'{arg["value"]}',
-                'coord': coord
-            }
-            for arg in self.delimited('(', ')', ',', self.parse_expression)
+            arg for arg in self.delimited('(', ')', ',', self.parse_expression)
         ]
+        # print(f'func: {func}')
         return func
 
     def parse_varname(self):
@@ -133,11 +132,12 @@ class Parser(object):
         return ret
 
     def parse_lambda(self):
+        coord = self.get_coord()
         vars_ = self.delimited('(', ')', ',', self.parse_varname)
         expr = self.parse_expression()
         expr['decl']['type']['args'] = {
             "_nodetype": "ParamList",
-            "coord": "./examples/test.c:1",
+            "coord": coord,
             "params": vars_,
         }
         return expr
@@ -150,7 +150,9 @@ class Parser(object):
 
     def maybe_call(self, expr):
         expr = expr()
-        if self.input.peek().get('type') in ['str', 'num']:
+        # print(f'sub expr: {expr}')
+        if self.input.peek().get('type') in ['string', 'num'] or \
+           self.input.peek().get('_nodetype') in ['ID']:
             return self.parse_call(expr)
         else:
             return expr
@@ -158,10 +160,14 @@ class Parser(object):
     def parse_atom(self):
         def anon():
             if self.input.peek().get('_nodetype') == 'FuncCall':
+                print("found FuncCall")
                 return self.input.next()
             if self.is_punc('('):
+                print("found (")
                 self.input.next()
+                print("parsing expression after (")
                 expr = self.parse_expression()
+                print("skipping )")
                 self.skip_punc(')')
                 return expr
             if self.is_punc('{'):
@@ -171,7 +177,11 @@ class Parser(object):
             if self.is_kw('true') or self.is_kw('false'):
                 return self.parse_bool()
             tok = self.input.next()
-            if tok['type'] == 'datatype':
+            print(f"got next token: {tok}")
+            # print(f'tok: {dumps(tok, indent=2)}')
+            # DATATYPE
+            if tok.get('type') == 'datatype':
+                print("found datatype")
                 var = self.input.next()
                 if var['_nodetype'] == 'FuncDef':
                     self.input.next()
@@ -187,19 +197,11 @@ class Parser(object):
                 var['init']['type'] = type(tok['value']).__name__
                 var['init']['value'] = str(tok['value'])
                 return var
-            if tok['type'] == 'var' or tok['type'] == 'num' or\
-               tok['type'] == 'str':
+            # CONSTANT
+            if tok.get('type') in ['string', 'int'] or \
+               tok.get('_nodetype') in ['ID']:
+                print("found string or int")
                 return tok
-            if tok.get('_nodetype') == 'Decl':
-                return {
-                    'type': 'string',
-                    'value': tok['name']
-                }
-                return {
-                    "_nodetype": "ID",
-                    "name": tok['name'],
-                    "coord": tok['coord']
-                }
             self.unexpected()
         return self.maybe_call(anon)
 
@@ -215,6 +217,7 @@ class Parser(object):
         functions = list()
         while not self.input.eof():
             expr = self.parse_expression()
+            # print(f'toplevel expr: {expr}')
             if expr['_nodetype'] == 'FuncDef':
                 functions.append(expr)
             else:

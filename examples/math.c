@@ -1,5 +1,6 @@
 int main()
 {
-  int a = 3;
-  printf("%d\n", a);
+  void a = 3;
+  printf("%s = %s\n", a, "b");
 }
+

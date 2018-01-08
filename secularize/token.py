@@ -1,4 +1,4 @@
-from json import load
+from json import load, dumps
 from .utils import populate_ast
 
 
@@ -25,7 +25,7 @@ class TokenStream(object):
         }
 
     def croak(self, message):
-        return self.input.croak(message)
+        return self.input.croak(message + f'{dumps(self.tokens, indent=2)}')
 
     def is_keyword(self, word):
         return word in self.keywords
@@ -115,6 +115,7 @@ class TokenStream(object):
         coord = f'{self.input.filename}:{self.input.line}'
         id_ = self.read_while(self.is_id)
         type_ = str()
+        print(f'id: {id_}')
         if self.is_keyword(id_):
             type_ = 'kw'
         elif self.is_datatype(id_):
@@ -124,6 +125,12 @@ class TokenStream(object):
                 .replace(' ', str())
             if maybe_pointer:
                 id_ += maybe_pointer
+        elif self.tokens and self.tokens[-1].get('type') != 'datatype' and id_ not in self.direct_trans:
+            print(f"creating var out of {id_}")
+            return populate_ast(self, 'id', **{
+                'name': id_,
+                'coord': coord
+            })
         else:
             # function definition
             if self.tokens and self.tokens[-1].get('type') == 'datatype' and\
@@ -160,22 +167,32 @@ class TokenStream(object):
         self.input.next()
         while not self.input.eof():
             ch = self.input.next()
-            if escaped:
-                string += ch
-                escaped = False
-            elif ch == '\\':
-                escaped = True
-            elif ch == end:
+            if ch == end:
                 break
-            else:
-                string += ch
-        return string
+            string += ch
+            # if escaped:
+            #     string += ch
+            #     escaped = False
+            # elif ch == '\\':
+            #     escaped = True
+            # elif ch == end:
+            #     break
+            # else:
+            #     string += ch
+        return f'"{string}"'
 
     def read_string(self):
         self.tokens.append({
-            'type': 'str',
-            'value': self.read_escaped('"')
+          "_nodetype": "Constant",
+          "type": "string",
+          "value": self.read_escaped('"'),
+          "coord": "examples/math.c:3:16"
         })
+        print(f'found string: {self.tokens[-1]}')
+        # self.tokens.append({
+        #     'type': 'str',
+        #     'value': self.read_escaped('"')
+        # })
         return self.tokens[-1]
 
     def skip_comment(self):
