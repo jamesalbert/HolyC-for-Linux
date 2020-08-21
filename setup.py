@@ -18,6 +18,7 @@ setup(
 
     description='run HolyC source on linux',
     long_description=long_description,  #this is the
+    long_description_content_type='text/markdown',
 
     # The project's main homepage.
     url='https://www.github.com/jamesalbert/HolyC-for-Linux',
