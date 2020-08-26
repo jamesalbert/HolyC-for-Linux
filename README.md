@@ -1,7 +1,8 @@
 # HolyC-for-Linux
 run HolyC on Linux secularly
 
-[![Build Status](http://ec2-54-162-194-49.compute-1.amazonaws.com/job/holyc-for-linux/job/master/badge/icon)](http://ec2-54-162-194-49.compute-1.amazonaws.com/job/holyc-for-linux/job/master/)
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
+![License](https://img.shields.io/github/license/jamesalbert/holyc-for-Linux?color=brightgreen&logoColor=brightgreen)
 [![PyPI version](https://badge.fury.io/py/secularize.svg)](https://badge.fury.io/py/secularize)
 
 #### Disclaimer
