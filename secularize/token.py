@@ -21,7 +21,8 @@ class TokenStream(object):
             'I16': 'short',
             'I32': 'int',
             'I64': 'long',
-            'F64': 'double'
+            'F64': 'double',
+            'F128': '_uint128_t_'
         }
 
     def croak(self, message):
