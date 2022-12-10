@@ -7,7 +7,7 @@ pipeline {
   }
 
   stages {
-    stage('Build') {
+    stage('Install') {
       steps {
         sh 'python setup.py install'
       }
