@@ -14,7 +14,7 @@ pipeline {
     }
     stage('Test') {
       steps {
-        echo 'you suck, there\'s no tests'
+        sh 'python -m unittest tests/test_char.py'
       }
     }
   }
