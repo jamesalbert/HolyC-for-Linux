@@ -7,7 +7,7 @@ on:
 
 jobs:
   summarize:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     permissions: write-all  # Some repositories need this line
 
     steps:
