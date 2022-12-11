@@ -12,9 +12,9 @@ pipeline {
         sh 'python setup.py install'
       }
     }
-    stage('Test') {
+    stage('Deploy') {
       steps {
-        sh 'python -m unittest tests/test_char.py'
+        sh 'aws ecs deploy'
       }
     }
   }
